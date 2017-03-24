@@ -67,7 +67,7 @@ function root(tree, Component) {
 /**
  * Branch component
  */
-function branch(cursors, Component) {
+function branch(cursors, Component, opts) {
   if (typeof Component !== 'function')
     throw Error('baobab-react/higher-order.branch: given target is not a valid React component.');
 
@@ -151,6 +151,41 @@ function branch(cursors, Component) {
       // Refreshing the watcher
       this.watcher.refresh(mapping);
       this.setState(this.watcher.get());
+    }
+
+    // Should update the component?
+    shouldComponentUpdate(nextProps, nextState) {
+      if (!(opts && opts.pure)) {
+        return true
+      }
+
+      propsKeys = Object.keys(this.props)
+      nextPropsKeys = Object.keys(nextProps)
+
+      stateKeys = Object.keys(this.state)
+      nextStateKeys = Object.keys(nextState)
+
+      if (!(propsKeys.length === nextPropsKeys.length && stateKeys.length === nextStateKeys.length)) {
+        return true
+      }
+
+      propsEqual = propsKeys.every(function (key) {
+        return this.props[key]  === nextProps[key]
+      })
+
+      if (!propsEqual) {
+        return true
+      }
+
+      stateEqual = stateKeys.every(function (key) {
+        return this.state[key]  === nextState[key]
+      })
+
+      if (!stateEqual) {
+        return true
+      }
+
+      return false
     }
   };
 

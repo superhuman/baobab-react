@@ -188,11 +188,44 @@ describe('Higher Order', function() {
       const wrapper = mount(<Root tree={tree}><BranchedChild /></Root>);
 
       tree.set('surname', 'the Third');
+      tree.commit();
 
-      setTimeout(() => {
-        assert.strictEqual(wrapper.text(), 'Hello John the Third');
-        done();
-      }, 50);
+      assert.strictEqual(wrapper.text(), 'Hello John the Third');
+      done();
+    });
+
+    it('should not re-render the component if cursor reference hasnt changed.', function(done) {
+      var address = {apt: "221B", street: "Baker St"}
+      const tree = new Baobab({name: 'Sherlock', address: address}, {asynchronous: false});
+
+      var numRendered = 0
+
+      class Child extends Component {
+        render() {
+          numRendered++
+
+          return (
+            <span>
+              {this.props.name}, stays at {this.props.address.apt} {this.props.address.street}
+            </span>
+          );
+        }
+      }
+
+      const Root = root(tree, BasicRoot);
+
+      const BranchedChild = branch({
+        name: 'name',
+        address: 'address'
+      }, Child, {pure: true});
+
+      const wrapper = mount(<Root tree={tree}><BranchedChild /></Root>);
+
+      tree.set('address', address);
+      tree.commit();
+
+      assert.strictEqual(numRendered, 1);
+      done();
     });
 
     it('should be possible to set cursors with a function.', function(done) {
@@ -220,11 +253,10 @@ describe('Higher Order', function() {
       const wrapper = mount(<Root tree={tree}><BranchedChild path={['surname']}/></Root>);
 
       tree.set('surname', 'the Third');
+      tree.commit();
 
-      setTimeout(() => {
-        assert.strictEqual(wrapper.text(), 'Hello John the Third');
-        done();
-      }, 50);
+      assert.strictEqual(wrapper.text(), 'Hello John the Third');
+      done();
     });
 
     it('wrapper component should return wrapping component instance by getDecoratedComponentInstance.', function() {
