@@ -1,6 +1,6 @@
 {
-  "name": "baobab-react",
-  "version": "2.1.2",
+  "name": "superhuman-baobab-react",
+  "version": "2.1.2-b",
   "description": "React integration for Baobab.",
   "main": "./index.js",
   "scripts": {
